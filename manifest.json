@@ -1,0 +1,35 @@
+{
+  "manifestVersion": 5,
+  "id": "com.strokerescue.plugin",
+  "name": "Stroke Rescue",
+  "version": "0.1.0",
+  "main": "index.html",
+  "host": [
+    {
+      "app": "PS",
+      "minVersion": "25.0.0",
+      "data": {
+        "apiVersion": 2,
+        "enableMenuRecording": true
+      }
+    }
+  ],
+  "requiredPermissions": {
+    "localFileSystem": "request"
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "strokeRescuePanel",
+      "label": { "default": "Stroke Rescue" },
+      "minimumSize": { "width": 220, "height": 300 },
+      "maximumSize": { "width": 1000, "height": 2000 },
+      "preferredDockedSize": { "width": 280, "height": 800 },
+      "preferredFloatingSize": { "width": 280, "height": 800 }
+    }
+  ],
+  "icons": [
+    { "width": 23, "height": 23, "path": "icons/icon-light.png", "scale": [1, 2], "theme": ["lightest", "light", "medium"] },
+    { "width": 23, "height": 23, "path": "icons/icon-dark.png", "scale": [1, 2], "theme": ["dark", "darkest"] }
+  ]
+}
