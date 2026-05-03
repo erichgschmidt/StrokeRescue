@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useMemo } from "react";
+import { ReactElement, useDeferredValue, useEffect, useMemo } from "react";
 import { applyThreshold } from "../engine/maskRefinement";
 import { cleanup as cleanupOp, growShrink } from "../engine/morphology";
 import { renderMaskPreview } from "../engine/previewRenderer";
@@ -15,14 +15,19 @@ interface Props {
 const PREVIEW_MAX = 240;
 
 export function PreviewPanel({ diff, settings, onChange, onMask }: Props): ReactElement {
+  // Keep slider input snappy: defer the heavy mask recompute behind React's
+  // priority queue so dragging the thumb doesn't block on growShrink/cleanup.
+  const deferred = useDeferredValue(settings);
+  const stale = deferred !== settings;
+
   const refined = useMemo(() => {
     if (!diff) return null;
     const { width, height } = diff.aligned;
-    let m = applyThreshold(diff.scoreMap, settings.threshold, settings.contrast, settings.softness);
-    if (settings.grow !== 0) m = growShrink(m, width, height, settings.grow);
-    if (settings.cleanup > 0) m = cleanupOp(m, width, height, settings.cleanup);
+    let m = applyThreshold(diff.scoreMap, deferred.threshold, deferred.contrast, deferred.softness);
+    if (deferred.grow !== 0) m = growShrink(m, width, height, deferred.grow);
+    if (deferred.cleanup > 0) m = cleanupOp(m, width, height, deferred.cleanup);
     return m;
-  }, [diff, settings]);
+  }, [diff, deferred]);
 
   useEffect(() => {
     onMask(refined ?? null);
@@ -74,6 +79,7 @@ export function PreviewPanel({ diff, settings, onChange, onMask }: Props): React
         <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>
           {diff.changedPixelCount.toLocaleString()} changed px · bbox{" "}
           {diff.bbox ? `${diff.bbox.w}×${diff.bbox.h}` : "—"}
+          {stale && " · updating…"}
         </div>
       )}
       <Slider

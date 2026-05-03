@@ -149,6 +149,18 @@ export function ComparePanel({ before, after, onPick, onDiff, onError }: Props):
         </button>
       </div>
       {renderPicker("before", before)}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
+        <button
+          style={{ ...btn, fontSize: 10, padding: "2px 8px" }}
+          disabled={!before && !after}
+          onClick={() => {
+            onPick("before", after);
+            onPick("after", before);
+          }}
+        >
+          ⇅ Swap
+        </button>
+      </div>
       {renderPicker("after", after)}
       <div style={{ fontSize: 10, opacity: 0.6, marginBottom: 6 }}>
         {describeSource(before)} → {describeSource(after)}
