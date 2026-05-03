@@ -55,12 +55,15 @@ export function computeDifference(
     // Per PRD: deltaRGB is mean abs channel diff, normalized to 0..1.
     const deltaRGB = (adR + adG + adB) / (3 * 255);
 
-    // deltaLuma is the absolute difference in BT.709 luminance.
+    // BT.709 luma delta.
     const lumaDelta = 0.2126 * dR + 0.7152 * dG + 0.0722 * dB;
     const deltaLuma = (lumaDelta < 0 ? -lumaDelta : lumaDelta) / 255;
 
-    // Simple chroma proxy: residual color change after luma is accounted for.
-    const deltaChroma = Math.max(0, deltaRGB - deltaLuma);
+    // BT.709 chroma (Cb/Cr) distance — captures hue shifts independent of luma.
+    const cbDelta = -0.1146 * dR - 0.3854 * dG + 0.5 * dB;
+    const crDelta = 0.5 * dR - 0.4542 * dG - 0.0458 * dB;
+    // Max plausible magnitude ≈ 255·sqrt(0.5²+0.5²) ≈ 180; normalize by 180.
+    const deltaChroma = Math.min(1, Math.sqrt(cbDelta * cbDelta + crDelta * crDelta) / 180);
 
     const deltaAlpha = adA / 255;
 
